@@ -122,7 +122,10 @@ async def search_cbers_scenes(
                         for k, v in assets_raw.items()
                         if isinstance(v, dict) and "href" in v
                     }
-                    cc = float(props.get("cloud_cover", props.get("eo:cloud_cover", 10.0)))
+                    raw_cc = props.get("cloud_cover")
+                    if raw_cc is None:
+                        raw_cc = props.get("eo:cloud_cover")
+                    cc = float(raw_cc) if raw_cc is not None else 10.0
                     results.append(ScenePass(
                         id=feat.get("id", ""),
                         satellite="CBERS-4A WPM (2m/8m)",
