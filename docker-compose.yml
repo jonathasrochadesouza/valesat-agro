@@ -1,0 +1,59 @@
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    container_name: valesat-db
+    environment:
+      POSTGRES_USER: valesat
+      POSTGRES_PASSWORD: valesat_secret_password
+      POSTGRES_DB: valesat_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U valesat -d valesat_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: valesat-backend
+    environment:
+      - DATABASE_URL=postgresql+psycopg2://valesat:valesat_secret_password@db:5432/valesat_db
+      - ENVIRONMENT=development
+      - GDAL_DISABLE_READDIR_ON_OPEN=EMPTY_DIR
+      - CPL_VSIL_CURL_ALLOWED_EXTENSIONS=.tif,.tiff,.TIF,.TIFF
+      - AWS_NO_SIGN_REQUEST=YES
+      - INPE_STAC_URL=https://data.inpe.br/bdc/stac/v1
+      - AWS_STAC_URL=https://earth-search.aws.element84.com/v1
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/app:/app/app
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: valesat-frontend
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
