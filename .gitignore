@@ -34,3 +34,5 @@ yarn-error.log*
 
 # Docker
 postgres_data/
+
+!docs/screenshots/*.png

@@ -16,6 +16,80 @@ interface MapViewerProps {
   onCancelDrawing: () => void;
 }
 
+// MapLibre v4 compatible draw styles without data-driven line-dasharray
+const DRAW_STYLES: any[] = [
+  {
+    id: "gl-draw-polygon-fill-active",
+    type: "fill",
+    filter: ["all", ["==", "$type", "Polygon"], ["!=", "mode", "static"]],
+    paint: {
+      "fill-color": "#10b981",
+      "fill-outline-color": "#10b981",
+      "fill-opacity": 0.2,
+    },
+  },
+  {
+    id: "gl-draw-polygon-stroke-active",
+    type: "line",
+    filter: ["all", ["==", "$type", "Polygon"], ["!=", "mode", "static"]],
+    layout: { "line-cap": "round", "line-join": "round" },
+    paint: {
+      "line-color": "#10b981",
+      "line-width": 3,
+    },
+  },
+  {
+    id: "gl-draw-line-active",
+    type: "line",
+    filter: ["all", ["==", "$type", "LineString"], ["!=", "mode", "static"]],
+    layout: { "line-cap": "round", "line-join": "round" },
+    paint: {
+      "line-color": "#10b981",
+      "line-width": 3,
+    },
+  },
+  {
+    id: "gl-draw-point-midpoint",
+    type: "circle",
+    filter: ["all", ["==", "$type", "Point"], ["==", "meta", "midpoint"]],
+    paint: {
+      "circle-radius": 4,
+      "circle-color": "#10b981",
+    },
+  },
+  {
+    id: "gl-draw-point-active",
+    type: "circle",
+    filter: ["all", ["==", "$type", "Point"], ["!=", "mode", "static"]],
+    paint: {
+      "circle-radius": 6,
+      "circle-color": "#34d399",
+      "circle-stroke-width": 2,
+      "circle-stroke-color": "#ffffff",
+    },
+  },
+  {
+    id: "gl-draw-polygon-fill-inactive",
+    type: "fill",
+    filter: ["all", ["==", "$type", "Polygon"], ["==", "mode", "static"]],
+    paint: {
+      "fill-color": "#059669",
+      "fill-outline-color": "#059669",
+      "fill-opacity": 0.15,
+    },
+  },
+  {
+    id: "gl-draw-polygon-stroke-inactive",
+    type: "line",
+    filter: ["all", ["==", "$type", "Polygon"], ["==", "mode", "static"]],
+    layout: { "line-cap": "round", "line-join": "round" },
+    paint: {
+      "line-color": "#059669",
+      "line-width": 2,
+    },
+  },
+];
+
 export const MapViewer: React.FC<MapViewerProps> = ({
   selectedField,
   rasterData,
@@ -98,13 +172,14 @@ export const MapViewer: React.FC<MapViewerProps> = ({
     map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), "top-right");
     map.addControl(new maplibregl.ScaleControl({ unit: "metric" }), "bottom-right");
 
-    // Initialize Draw tool
+    // Initialize Draw tool with MapLibre v4 compatible styles
     const draw = new MapboxDraw({
       displayControlsDefault: false,
       controls: {
         polygon: true,
         trash: true,
       },
+      styles: DRAW_STYLES,
       defaultMode: "simple_select",
     });
     map.addControl(draw as any, "top-right");
