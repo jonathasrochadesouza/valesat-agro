@@ -41,6 +41,13 @@ class ProcessRasterRequest(BaseModel):
     layer: str = "ndvi"
     assets: Optional[dict[str, str]] = None
 
+class ZoneDistribution(BaseModel):
+    very_high_pct: float
+    high_pct: float
+    moderate_pct: float
+    low_pct: float
+    non_veg_pct: float
+
 class RasterStats(BaseModel):
     min: float
     max: float
@@ -50,6 +57,7 @@ class RasterStats(BaseModel):
     agronomic_status: str
     histogram: list[int] = []
     histogram_bins: list[float] = []
+    zones: Optional[ZoneDistribution] = None
 
 class ProcessRasterResponse(BaseModel):
     scene_id: str
@@ -67,3 +75,42 @@ class HealthResponse(BaseModel):
     aws_stac: str
     inpe_stac: str
     version: str
+
+class WeatherCurrent(BaseModel):
+    temperature: float
+    apparent_temperature: float
+    humidity: float
+    precipitation_mm: float
+    wind_speed_kmh: float
+    weather_code: int
+    weather_label: str
+    spraying_window: str
+    updated_at: str
+
+class WeatherForecastDay(BaseModel):
+    date: str
+    temp_max: float
+    temp_min: float
+    precipitation_sum_mm: float
+    precipitation_probability: float
+    label: str
+
+class WeatherResponse(BaseModel):
+    municipality: str
+    current: WeatherCurrent
+    forecast: list[WeatherForecastDay]
+
+class PointInspectRequest(BaseModel):
+    field_id: Optional[int] = None
+    lat: float
+    lon: float
+
+class PointInspectResponse(BaseModel):
+    lat: float
+    lon: float
+    ndvi: float
+    ndwi: float
+    estimated_biomass_t_ha: float
+    zone_class: str
+    diagnostic: str
+    recommendation: str

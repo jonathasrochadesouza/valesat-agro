@@ -24,6 +24,14 @@ export interface ScenePass {
   quality_label: string;
 }
 
+export interface ZoneDistribution {
+  very_high_pct: number;
+  high_pct: number;
+  moderate_pct: number;
+  low_pct: number;
+  non_veg_pct: number;
+}
+
 export interface RasterStats {
   min: number;
   max: number;
@@ -33,6 +41,7 @@ export interface RasterStats {
   agronomic_status: string;
   histogram: number[];
   histogram_bins: number[];
+  zones?: ZoneDistribution | null;
 }
 
 export interface ProcessRasterResponse {
@@ -59,4 +68,42 @@ export interface TimelineDataPoint {
   ndvi: number;
   ndwi: number;
   cloud_cover: number;
+}
+
+export interface WeatherCurrent {
+  temperature: number;
+  apparent_temperature: number;
+  humidity: number;
+  precipitation_mm: number;
+  wind_speed_kmh: number;
+  weather_code: number;
+  weather_label: string;
+  spraying_window: string;
+  updated_at: string;
+}
+
+export interface WeatherForecastDay {
+  date: string;
+  temp_max: number;
+  temp_min: number;
+  precipitation_sum_mm: number;
+  precipitation_probability: number;
+  label: string;
+}
+
+export interface WeatherResponse {
+  municipality: string;
+  current: WeatherCurrent;
+  forecast: WeatherForecastDay[];
+}
+
+export interface PointInspectResponse {
+  lat: number;
+  lon: number;
+  ndvi: number;
+  ndwi: number;
+  estimated_biomass_t_ha: number;
+  zone_class: string;
+  diagnostic: string;
+  recommendation: string;
 }

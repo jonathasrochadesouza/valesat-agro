@@ -1,4 +1,12 @@
-import { Field, ScenePass, ProcessRasterResponse, HealthResponse, TimelineDataPoint } from "./types";
+import {
+  Field,
+  ScenePass,
+  ProcessRasterResponse,
+  HealthResponse,
+  TimelineDataPoint,
+  WeatherResponse,
+  PointInspectResponse
+} from "./types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -77,5 +85,21 @@ export async function fetchAnalytics(fieldId: number): Promise<{
 }> {
   const res = await fetch(API_BASE + "/api/satellite/analytics/" + fieldId, { cache: "no-store" });
   if (!res.ok) throw new Error("Falha ao carregar série temporal");
+  return res.json();
+}
+
+export async function fetchWeather(lat = -26.9700, lon = -49.1753, municipality = "Blumenau / Gaspar"): Promise<WeatherResponse> {
+  const res = await fetch(`${API_BASE}/api/satellite/weather?lat=${lat}&lon=${lon}&municipality=${encodeURIComponent(municipality)}`, { cache: "no-store" });
+  if (!res.ok) throw new Error("Falha ao consultar previsão meteorológica");
+  return res.json();
+}
+
+export async function inspectPoint(payload: { field_id?: number; lat: number; lon: number }): Promise<PointInspectResponse> {
+  const res = await fetch(`${API_BASE}/api/satellite/inspect`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+  if (!res.ok) throw new Error("Falha ao inspecionar ponto");
   return res.json();
 }
